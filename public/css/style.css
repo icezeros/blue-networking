@@ -1,0 +1,25 @@
+
+
+
+.files{
+    max-width: 600;
+    min-width: 100;
+    max-height: 150;
+    min-height: 150;
+    margin:30 30 30 30;
+    padding:40 80 40 80;
+}
+
+
+
+#drag-file{
+    max-width: 600;
+    min-width: 60;
+    max-height: 600;
+    min-height: 60;
+    margin:30 30 30 30;
+    padding:40 80 80 80;
+}
+
+
+
