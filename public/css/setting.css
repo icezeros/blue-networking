@@ -1,0 +1,8 @@
+.paper{
+    max-width: 600;
+    min-width: 200;
+    max-height: 600;
+    min-height: 200;
+    margin:30 30 30 30;
+    padding:80 80 80 80;
+}

@@ -103,7 +103,7 @@ function moveUp() {
     characteristicsArr.map(characteristic => {
       characteristic.write(buffer, true, () => {});
     });
-  }, 100);
+  }, 200);
 }
 
 function moveDown() {
