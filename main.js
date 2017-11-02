@@ -69,13 +69,19 @@ function createWindow() {
   noble.on('discover', peripheral => {
     const advertisement = peripheral.advertisement;
     const tmp = {
-      advertisement,
-      name: advertisement.name,
+      peripheral,
+      name: advertisement.localName,
       connected: false,
       checked: false,
     };
-    blueList.push(tmp);
-    scanEvent.sender.send('scanForResult', blueList);
+
+    console.log(blueNameList.indexOf(tmp.name));
+
+    if (blueNameList.indexOf(tmp.name) < 0) {
+      blueList.push(tmp);
+      blueNameList.push(tmp.name);
+      scanEvent.sender.send('scanForResult', blueNameList);
+    }
     // if (
     //   (advertisement.localName === 'Officewell#1000090' &&
     //     advertisement.serviceUuids.length > 0) ||
