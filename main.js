@@ -49,6 +49,8 @@ function createWindow() {
     noble.startScanning([], true);
   });
 
+  ipcMain.on('connect', (event, arg) => {});
+
   ipcMain.on('moveUp', (event, arg) => {
     // event.sender.send('scanForResult', 'ping');
     moveUp();
@@ -66,19 +68,27 @@ function createWindow() {
 
   noble.on('discover', peripheral => {
     const advertisement = peripheral.advertisement;
-    if (
-      (advertisement.localName === 'Officewell#1000090' &&
-        advertisement.serviceUuids.length > 0) ||
-      (advertisement.localName === 'Officewell#1000089' &&
-        advertisement.serviceUuids.length > 0) ||
-      (advertisement.localName === 'Officewell#1000098' &&
-        advertisement.serviceUuids.length > 0)
-    ) {
-      // noble.stopScanning();
-      console.log('======== advertisement ========== ');
-      scanEvent.sender.send('scanForResult', advertisement);
-      connect(peripheral);
-    }
+    const tmp = {
+      advertisement,
+      name: advertisement.name,
+      connected: false,
+      checked: false,
+    };
+    blueList.push(tmp);
+    scanEvent.sender.send('scanForResult', blueList);
+    // if (
+    //   (advertisement.localName === 'Officewell#1000090' &&
+    //     advertisement.serviceUuids.length > 0) ||
+    //   (advertisement.localName === 'Officewell#1000089' &&
+    //     advertisement.serviceUuids.length > 0) ||
+    //   (advertisement.localName === 'Officewell#1000098' &&
+    //     advertisement.serviceUuids.length > 0)
+    // ) {
+    //   // noble.stopScanning();
+    //   console.log('======== advertisement ========== ');
+    //   scanEvent.sender.send('scanForResult', advertisement);
+    //   connect(peripheral);
+    // }
   });
 }
 
