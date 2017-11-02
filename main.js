@@ -8,15 +8,15 @@ const path = require('path');
 const url = require('url');
 const { ipcMain } = require('electron');
 const noble = require('noble');
-const _ = require('lodash');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let scanEvent;
-let controlCharacteristic;
-const blueList = [];
-const blueNameList = [];
+let controlCharacteristic1;
+let controlCharacteristic2;
+let controlCharacteristic3;
+let interval;
 
 function createWindow() {
   // Create the browser window.
@@ -51,68 +51,72 @@ function createWindow() {
 
   ipcMain.on('moveUp', (event, arg) => {
     // event.sender.send('scanForResult', 'ping');
-    console.log('====== moveUp ===== ', controlCharacteristic);
-    if (controlCharacteristic.uuid === 'fff4') {
-      const buffer = new Buffer([0x01]);
-      controlCharacteristic.write(buffer, true, () => {});
-    }
+    const buffer = new Buffer([0x01]);
+    interval && clearInterval(interval);
+    interval = setInterval(() => {
+      controlCharacteristic1 &&
+        controlCharacteristic1.write(buffer, true, () => {});
+      controlCharacteristic2 &&
+        controlCharacteristic2.write(buffer, true, () => {});
+      controlCharacteristic3 &&
+        controlCharacteristic3.write(buffer, true, () => {});
+    }, 200);
   });
 
   ipcMain.on('moveDown', (event, arg) => {
     // event.sender.send('scanForResult', 'ping');
-    if (controlCharacteristic.uuid === 'fff4') {
-      const buffer = new Buffer([0x02]);
-      controlCharacteristic.write(buffer, true, () => {});
-    }
+    const buffer = new Buffer([0x02]);
+    interval && clearInterval(interval);
+    interval = setInterval(() => {
+      controlCharacteristic1 &&
+        controlCharacteristic1.write(buffer, true, () => {});
+      controlCharacteristic2 &&
+        controlCharacteristic2.write(buffer, true, () => {});
+      controlCharacteristic3 &&
+        controlCharacteristic3.write(buffer, true, () => {});
+    }, 200);
+  });
+
+  ipcMain.on('moveStop', (event, arg) => {
+    // event.sender.send('scanForResult', 'ping');
+    const buffer = new Buffer([0x00]);
+    interval && clearInterval(interval);
+    controlCharacteristic1 &&
+      controlCharacteristic1.write(buffer, true, () => {});
+    controlCharacteristic2 &&
+      controlCharacteristic2.write(buffer, true, () => {});
+    controlCharacteristic3 &&
+      controlCharacteristic3.write(buffer, true, () => {});
   });
 
   noble.on('discover', peripheral => {
     const advertisement = peripheral.advertisement;
-    /*  if (
-      advertisement.localName === 'Officewell#1000089' &&
-      advertisement.serviceUuids.length > 0
+    if (
+      (advertisement.localName === 'Officewell#1000090' &&
+        advertisement.serviceUuids.length > 0) ||
+      (advertisement.localName === 'Officewell#1000089' &&
+        advertisement.serviceUuids.length > 0) ||
+      (advertisement.localName === 'Officewell#1000098' &&
+        advertisement.serviceUuids.length > 0)
     ) {
-      noble.stopScanning();
-      console.log('======== advertisement ========== ', advertisement);
+      // noble.stopScanning();
+      console.log('======== advertisement ========== ');
       scanEvent.sender.send('scanForResult', advertisement);
       peripheral.connect(() => {
         console.log('======= connect ======');
         peripheral.discoverServices([], (error, services) => {
-          console.log('======== discoverServices ======== ', services);
           if (services[1].uuid === 'fff1') {
             services[1].discoverCharacteristics([], (err, characteristics) => {
-              console.log(
-                '======== discoverCharacteristics ====== ',
-                characteristics,
-              );
-              controlCharacteristic = characteristics[4];
-            });
-          }
-        });
-      });
-    } */
-    if (blueNameList.indexOf(advertisement.localName) < 0) {
-      const tmp = {
-        blueNameList,
-      };
+              if (controlCharacteristic1 && controlCharacteristic2) {
+                controlCharacteristic3 = characteristics[4];
+                return;
+              }
+              if (controlCharacteristic1) {
+                controlCharacteristic2 = characteristics[4];
+                return;
+              }
 
-      blueNameList.push(advertisement.localName);
-      blueList.push(tmp);
-
-      console.log('======== advertisement ========== ', advertisement);
-      scanEvent.sender.send('scanForResult', advertisement);
-      peripheral.connect(() => {
-        console.log('======= connect ======');
-        peripheral.discoverServices([], (error, services) => {
-          console.log('======== discoverServices ======== ', services);
-          if (services[1].uuid === 'fff1') {
-            services[1].discoverCharacteristics([], (err, characteristics) => {
-              console.log(
-                '======== discoverCharacteristics ====== ',
-                characteristics,
-              );
-              tmp.controlCharacteristic = characteristics[4];
-              controlCharacteristic = characteristics[4];
+              controlCharacteristic1 = characteristics[4];
             });
           }
         });
@@ -126,7 +130,6 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
-// function
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar

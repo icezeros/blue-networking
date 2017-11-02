@@ -18,7 +18,7 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "babel-eslint": "^7.0.0",
-    "electron": "~1.7.8",
+    "electron": "~1.7.9",
     "electron-rebuild": "^1.6.0",
     "eslint": "^3.17.1",
     "eslint-config-airbnb": "^14.1.0",
@@ -31,7 +31,6 @@
     "prettier": "^1.2.2"
   },
   "dependencies": {
-    "lodash": "^4.17.4",
     "noble": "^1.8.1"
   }
 }
