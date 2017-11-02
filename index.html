@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+</head>
+
+<body onload="init()">
+  <h1>Hello World!</h1>
+  <!-- All of the Node.js APIs are available in this renderer process. -->
+  We are using Node.js
+  <script>document.write(process.versions.node)</script>, Chromium
+  <script>document.write(process.versions.chrome)</script>, and Electron
+  <script>document.write(process.versions.electron)</script>.
+
+  <script src="renderer.js">
+      // You can also require other files to run in this process
+      // require('./renderer.js')
+  </script>
+
+  <font id="font" size="3" color="red"> text!</font>
+  <div>
+    <p id='blueName'></p>
+  </div>
+
+
+  <button type="button" onclick="scan()" style="">扫描</button>
+  <div>
+    <button type="button" onclick="moveUp()" style="">上升</button>
+    <button type="button" onclick="moveDown()" style="">下降</button>
+  </div>
+
+</body>
+
+</html>
