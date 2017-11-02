@@ -13,10 +13,10 @@ const noble = require('noble');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let scanEvent;
-let controlCharacteristic1;
-let controlCharacteristic2;
-let controlCharacteristic3;
 let interval;
+const blueList = [];
+const blueNameList = [];
+const characteristicsArr = [];
 
 function createWindow() {
   // Create the browser window.
@@ -51,42 +51,17 @@ function createWindow() {
 
   ipcMain.on('moveUp', (event, arg) => {
     // event.sender.send('scanForResult', 'ping');
-    const buffer = new Buffer([0x01]);
-    interval && clearInterval(interval);
-    interval = setInterval(() => {
-      controlCharacteristic1 &&
-        controlCharacteristic1.write(buffer, true, () => {});
-      controlCharacteristic2 &&
-        controlCharacteristic2.write(buffer, true, () => {});
-      controlCharacteristic3 &&
-        controlCharacteristic3.write(buffer, true, () => {});
-    }, 200);
+    moveUp();
   });
 
   ipcMain.on('moveDown', (event, arg) => {
     // event.sender.send('scanForResult', 'ping');
-    const buffer = new Buffer([0x02]);
-    interval && clearInterval(interval);
-    interval = setInterval(() => {
-      controlCharacteristic1 &&
-        controlCharacteristic1.write(buffer, true, () => {});
-      controlCharacteristic2 &&
-        controlCharacteristic2.write(buffer, true, () => {});
-      controlCharacteristic3 &&
-        controlCharacteristic3.write(buffer, true, () => {});
-    }, 200);
+    moveDown();
   });
 
   ipcMain.on('moveStop', (event, arg) => {
     // event.sender.send('scanForResult', 'ping');
-    const buffer = new Buffer([0x00]);
-    interval && clearInterval(interval);
-    controlCharacteristic1 &&
-      controlCharacteristic1.write(buffer, true, () => {});
-    controlCharacteristic2 &&
-      controlCharacteristic2.write(buffer, true, () => {});
-    controlCharacteristic3 &&
-      controlCharacteristic3.write(buffer, true, () => {});
+    moveStop();
   });
 
   noble.on('discover', peripheral => {
@@ -102,26 +77,59 @@ function createWindow() {
       // noble.stopScanning();
       console.log('======== advertisement ========== ');
       scanEvent.sender.send('scanForResult', advertisement);
-      peripheral.connect(() => {
-        console.log('======= connect ======');
-        peripheral.discoverServices([], (error, services) => {
-          if (services[1].uuid === 'fff1') {
-            services[1].discoverCharacteristics([], (err, characteristics) => {
-              if (controlCharacteristic1 && controlCharacteristic2) {
-                controlCharacteristic3 = characteristics[4];
-                return;
-              }
-              if (controlCharacteristic1) {
-                controlCharacteristic2 = characteristics[4];
-                return;
-              }
-
-              controlCharacteristic1 = characteristics[4];
-            });
-          }
-        });
-      });
+      connect(peripheral);
     }
+  });
+}
+
+function moveUp() {
+  console.log('====== moveUp ===== ', characteristicsArr);
+  if (characteristicsArr.length === 0) {
+    return;
+  }
+  const buffer = new Buffer([0x01]);
+  interval && clearInterval(interval);
+  interval = setInterval(() => {
+    characteristicsArr.map(characteristic => {
+      characteristic.write(buffer, true, () => {});
+    });
+  }, 100);
+}
+
+function moveDown() {
+  if (characteristicsArr.length === 0) {
+    return;
+  }
+  const buffer = new Buffer([0x02]);
+  interval && clearInterval(interval);
+  interval = setInterval(() => {
+    characteristicsArr.map(characteristic => {
+      characteristic.write(buffer, true, () => {});
+    });
+  }, 100);
+}
+
+function moveStop() {
+  if (characteristicsArr.length === 0) {
+    return;
+  }
+  const buffer = new Buffer([0x00]);
+  interval && clearInterval(interval);
+  characteristicsArr.map(characteristic => {
+    characteristic.write(buffer, true, () => {});
+  });
+}
+
+function connect(peripheral) {
+  peripheral.connect(() => {
+    console.log('======= connect ====== ', peripheral.advertisement.localName);
+    peripheral.discoverServices([], (error, services) => {
+      if (services[1].uuid === 'fff1') {
+        services[1].discoverCharacteristics([], (err, characteristics) => {
+          characteristicsArr.push(characteristics[4]);
+        });
+      }
+    });
   });
 }
 
