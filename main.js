@@ -1,4 +1,5 @@
 const electron = require('electron');
+const _ = require('lodash');
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -16,7 +17,7 @@ let scanEvent;
 let interval;
 const blueList = [];
 const blueNameList = [];
-const characteristicsArr = [];
+const characteristicsFFF4Arr = [];
 
 function createWindow() {
   // Create the browser window.
@@ -49,21 +50,44 @@ function createWindow() {
     noble.startScanning([], true);
   });
 
-  ipcMain.on('connect', (event, arg) => {});
+  ipcMain.on('connect', (event, arg) => {
+    console.log('======= conncet to ===== ', arg);
+    const filterData = _.filter(blueList, item => {
+      if (arg.indexOf(item.name) > -1) {
+        return true;
+      }
+    });
+    filterData.forEach(item => {
+      connect(item.peripheral);
+    });
+  });
+
+  ipcMain.on('connect', (event, arg) => {
+    console.log('======= conncet to ===== ', arg);
+    const filterData = _.filter(blueList, item => {
+      if (arg.indexOf(item.name) > -1) {
+        return true;
+      }
+    });
+    filterData.forEach(item => {
+      connect(item.peripheral);
+    });
+  });
 
   ipcMain.on('moveUp', (event, arg) => {
-    // event.sender.send('scanForResult', 'ping');
     moveUp();
   });
 
   ipcMain.on('moveDown', (event, arg) => {
-    // event.sender.send('scanForResult', 'ping');
     moveDown();
   });
 
   ipcMain.on('moveStop', (event, arg) => {
-    // event.sender.send('scanForResult', 'ping');
     moveStop();
+  });
+
+  ipcMain.on('stopScan', (event, arg) => {
+    noble.stopScanning();
   });
 
   noble.on('discover', peripheral => {
@@ -75,77 +99,74 @@ function createWindow() {
       checked: false,
     };
 
-    console.log(blueNameList.indexOf(tmp.name));
-
     if (blueNameList.indexOf(tmp.name) < 0) {
       blueList.push(tmp);
       blueNameList.push(tmp.name);
       scanEvent.sender.send('scanForResult', blueNameList);
     }
-    // if (
-    //   (advertisement.localName === 'Officewell#1000090' &&
-    //     advertisement.serviceUuids.length > 0) ||
-    //   (advertisement.localName === 'Officewell#1000089' &&
-    //     advertisement.serviceUuids.length > 0) ||
-    //   (advertisement.localName === 'Officewell#1000098' &&
-    //     advertisement.serviceUuids.length > 0)
-    // ) {
-    //   // noble.stopScanning();
-    //   console.log('======== advertisement ========== ');
-    //   scanEvent.sender.send('scanForResult', advertisement);
-    //   connect(peripheral);
-    // }
   });
 }
 
 function moveUp() {
-  console.log('====== moveUp ===== ', characteristicsArr);
-  if (characteristicsArr.length === 0) {
+  console.log('====== moveUp ===== ', characteristicsFFF4Arr);
+  if (characteristicsFFF4Arr.length === 0) {
     return;
   }
   const buffer = new Buffer([0x01]);
   interval && clearInterval(interval);
   interval = setInterval(() => {
-    characteristicsArr.map(characteristic => {
+    characteristicsFFF4Arr.map(characteristic => {
       characteristic.write(buffer, true, () => {});
     });
   }, 200);
 }
 
 function moveDown() {
-  if (characteristicsArr.length === 0) {
+  if (characteristicsFFF4Arr.length === 0) {
     return;
   }
   const buffer = new Buffer([0x02]);
   interval && clearInterval(interval);
   interval = setInterval(() => {
-    characteristicsArr.map(characteristic => {
+    characteristicsFFF4Arr.map(characteristic => {
       characteristic.write(buffer, true, () => {});
     });
   }, 100);
 }
 
 function moveStop() {
-  if (characteristicsArr.length === 0) {
+  if (characteristicsFFF4Arr.length === 0) {
     return;
   }
   const buffer = new Buffer([0x00]);
   interval && clearInterval(interval);
-  characteristicsArr.map(characteristic => {
+  characteristicsFFF4Arr.map(characteristic => {
     characteristic.write(buffer, true, () => {});
   });
 }
 
 function connect(peripheral) {
   peripheral.connect(() => {
-    console.log('======= connect ====== ', peripheral.advertisement.localName);
+    console.log(
+      '======= connected ====== ',
+      peripheral.advertisement.localName,
+    );
     peripheral.discoverServices([], (error, services) => {
       if (services[1].uuid === 'fff1') {
         services[1].discoverCharacteristics([], (err, characteristics) => {
-          characteristicsArr.push(characteristics[4]);
+          characteristicsFFF4Arr.push(characteristics[4]);
         });
       }
     });
+  });
+}
+
+function disconnect(peripheral) {
+  peripheral.disconnect(() => {
+    console.log(
+      '======= disconnected ====== ',
+      peripheral.advertisement.localName,
+    );
   });
 }
 
