@@ -62,18 +62,6 @@ function createWindow() {
     });
   });
 
-  ipcMain.on('connect', (event, arg) => {
-    console.log('======= conncet to ===== ', arg);
-    const filterData = _.filter(blueList, item => {
-      if (arg.indexOf(item.name) > -1) {
-        return true;
-      }
-    });
-    filterData.forEach(item => {
-      connect(item.peripheral);
-    });
-  });
-
   ipcMain.on('moveUp', (event, arg) => {
     moveUp();
   });
