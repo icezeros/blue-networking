@@ -7,8 +7,6 @@ const { ipcRenderer } = require('electron');
 function init() {
   console.log('========= init ========');
   ipcRenderer.on('scanForResult', (event, arg) => {
-    console.log('======= scanForResult ======== ', arg);
-    document.getElementById('font').color = 'blue';
     const p3 = document.getElementById('p3');
     let inht = '';
     arg.forEach((item, index) => {
@@ -27,6 +25,7 @@ function setText() {
     document.getElementById('font').color = 'blue';
   });
 }
+
 function connect() {
   const checkboxs = document.getElementsByClassName('mdl-checkbox__input');
   console.log(checkboxs.length);
@@ -56,4 +55,12 @@ function moveDown() {
 
 function moveStop() {
   ipcRenderer.send('moveStop', 'arg');
+}
+
+function stopScan() {
+  ipcRenderer.send('stopScan', 'arg');
+}
+
+function disconnect() {
+  ipcRenderer.send('disconnect', 'arg');
 }

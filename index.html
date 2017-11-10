@@ -39,10 +39,16 @@
     <font id="font" size="5" color="red"> text!</font>
     <div>
       <div style="margin-top:40px">
-        <button type="button" onclick="scan()" style="width:60px,height:30px">扫描</button>
-        <button type="button" onclick="moveUp()" style="">上升</button>
-        <button type="button" onclick="moveDown()" style="">下降</button>
-        <button type="button" onclick="moveStop()" style="">停止</button>
+        <button class="mdl-button mdl-js-button mdl-button--raised" onclick="scan()">扫描</button>
+        <button class="mdl-button mdl-js-button mdl-button--raised" onclick="moveUp()" style="margin-left:20px">上升</button>
+        <button class="mdl-button mdl-js-button mdl-button--raised" onclick="moveDown()" style="margin-left:20px">下降</button>
+        <button class="mdl-button mdl-js-button mdl-button--raised" onclick="moveStop()" style="margin-left:20px">停止</button>
+        <button class="mdl-button mdl-js-button mdl-button--raised" onclick="stopScan();" style="margin-left:20px">
+          停止扫描
+        </button>
+        <button class="mdl-button mdl-js-button mdl-button--raised" onclick="disconnect();" style="margin-left:20px">
+          断开连接
+        </button>
         <script defer src="public/js/material.min.js"></script>
 
       </div>
